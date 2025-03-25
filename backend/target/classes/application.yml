@@ -1,0 +1,33 @@
+server:
+  port: 8080  # 服务端口
+
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    url: jdbc:mysql://localhost:3306/content_approval?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: lzh811210
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update  # 可选值：none, validate, update, create-drop
+    show-sql: true
+  sql:
+    init:
+      mode: always  # 启动时执行 schema.sql 和 data.sql
+
+security:
+  jwt:
+    token:
+      secret-key: 12345678901234567890123456789012  # 应使用更安全的密钥
+      expire-length: 3600000  # 1 小时，单位：毫秒
+
+logging:
+  level:
+    root: INFO
+    com.example.approval: DEBUG  # 仅调试本项目日志
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
