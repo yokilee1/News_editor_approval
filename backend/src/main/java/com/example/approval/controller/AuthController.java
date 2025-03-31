@@ -5,6 +5,7 @@ import com.example.approval.dto.AuthResponse;
 import com.example.approval.dto.UserDto;
 import com.example.approval.model.User;
 import com.example.approval.security.JwtTokenUtil;
+import com.example.approval.service.AuthService;
 import com.example.approval.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ import java.util.Map;
  * 认证接口：包括注册与登录
  */
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
@@ -33,6 +34,9 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AuthService authService;
 
     /**
      * 用户注册
@@ -58,24 +62,19 @@ public class AuthController {
      * 用户登录：返回 JWT Token
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+        AuthResponse response = authService.authenticate(request);
+        return ResponseEntity.ok(response);
+    }
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        User user = userService.findByUsername(userDetails.getUsername());
+    @PostMapping("/validate")
+    public ResponseEntity<Map<String, Boolean>> validateToken(
+            @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        boolean isValid = authService.validateToken(token);
         
-        String token = jwtTokenUtil.generateToken(userDetails);
-        
-        Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("id", user.getId());
-        userInfo.put("username", user.getUsername());
-        userInfo.put("name", user.getUsername());
-        userInfo.put("email", user.getEmail());
-        userInfo.put("role", user.getRole());
-        
-        AuthResponse response = new AuthResponse(token, userInfo);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("valid", isValid);
         
         return ResponseEntity.ok(response);
     }

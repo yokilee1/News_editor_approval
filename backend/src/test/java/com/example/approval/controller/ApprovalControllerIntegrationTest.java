@@ -1,8 +1,10 @@
 package com.example.approval.controller;
 
+import com.example.approval.config.TestConfig;
 import com.example.approval.dto.ApprovalDto;
 import com.example.approval.model.ApprovalRecord;
 import com.example.approval.model.Content;
+import com.example.approval.security.PermissionAspectTestConfig;
 import com.example.approval.service.ApprovalService;
 import com.example.approval.service.LogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,8 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.*;
 
@@ -26,6 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import({TestConfig.class, PermissionAspectTestConfig.class})
+@WithMockUser(username = "admin", roles = {"ADMIN"})
 public class ApprovalControllerIntegrationTest {
 
     @Autowired
@@ -81,9 +87,10 @@ public class ApprovalControllerIntegrationTest {
     @Test
     void submitForApproval_shouldReturnSubmittedContent() throws Exception {
         when(approvalService.submitForApproval(anyLong(), anyLong())).thenReturn(testContent);
-        doNothing().when(logService).recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString());
+        when(logService.recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString())).thenReturn(null);
 
         mockMvc.perform(post("/api/approval/submit/1")
+                .requestAttr("userId", 1L)
                 .header("X-User-ID", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -93,7 +100,7 @@ public class ApprovalControllerIntegrationTest {
     @Test
     void processApproval_shouldReturnProcessedContent() throws Exception {
         when(approvalService.processApproval(any(ApprovalDto.class), anyLong())).thenReturn(testContent);
-        doNothing().when(logService).recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString());
+        when(logService.recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString())).thenReturn(null);
 
         mockMvc.perform(post("/api/approval/process")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -127,7 +134,7 @@ public class ApprovalControllerIntegrationTest {
     @Test
     void withdrawApproval_shouldReturnWithdrawnContent() throws Exception {
         when(approvalService.withdrawApproval(anyLong(), anyLong())).thenReturn(testContent);
-        doNothing().when(logService).recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString());
+        when(logService.recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString())).thenReturn(null);
 
         mockMvc.perform(post("/api/approval/withdraw/1")
                 .header("X-User-ID", "1"))

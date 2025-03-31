@@ -57,7 +57,6 @@ public class AuthServiceTest {
         testUser.setId(1L);
         testUser.setUsername("testuser");
         testUser.setPassword("encodedPassword");
-        testUser.setUsername("测试用户");
         testUser.setRole(User.Role.valueOf("EDITOR"));
 
         userDetails = org.springframework.security.core.userdetails.User
@@ -84,7 +83,7 @@ public class AuthServiceTest {
         assertEquals("test.jwt.token", response.getToken());
         assertEquals(1L, response.getUserId());
         assertEquals("testuser", response.getUsername());
-        assertEquals("测试用户", response.getName());
+        assertEquals("testuser", response.getName());
         assertEquals("EDITOR", response.getRole());
     }
 

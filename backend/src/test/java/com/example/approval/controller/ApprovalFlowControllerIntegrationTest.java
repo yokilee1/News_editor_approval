@@ -1,7 +1,9 @@
 package com.example.approval.controller;
 
+import com.example.approval.config.TestConfig;
 import com.example.approval.dto.ApprovalFlowDto;
 import com.example.approval.model.ApprovalFlow;
+import com.example.approval.security.PermissionAspectTestConfig;
 import com.example.approval.service.ApprovalFlowService;
 import com.example.approval.service.LogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.Arrays;
 
@@ -25,6 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import({TestConfig.class, PermissionAspectTestConfig.class})
+@WithMockUser(username = "admin", roles = {"ADMIN"})
 public class ApprovalFlowControllerIntegrationTest {
 
     @Autowired
@@ -59,11 +65,12 @@ public class ApprovalFlowControllerIntegrationTest {
     @Test
     void createApprovalFlow_shouldReturnCreatedFlow() throws Exception {
         when(approvalFlowService.createApprovalFlow(any(ApprovalFlowDto.class), anyLong())).thenReturn(testFlow);
-        doNothing().when(logService).recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString());
+        when(logService.recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString())).thenReturn(null);
 
         mockMvc.perform(post("/api/approval-flow")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testFlowDto))
+                .requestAttr("userId", 1L)
                 .header("X-User-ID", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -83,11 +90,12 @@ public class ApprovalFlowControllerIntegrationTest {
     @Test
     void updateApprovalFlow_shouldReturnUpdatedFlow() throws Exception {
         when(approvalFlowService.updateApprovalFlow(anyLong(), any(ApprovalFlowDto.class))).thenReturn(testFlow);
-        doNothing().when(logService).recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString());
+        when(logService.recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString())).thenReturn(null);
 
         mockMvc.perform(put("/api/approval-flow/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testFlowDto))
+                .requestAttr("userId", 1L)
                 .header("X-User-ID", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -97,9 +105,10 @@ public class ApprovalFlowControllerIntegrationTest {
     @Test
     void deleteApprovalFlow_shouldReturnSuccess() throws Exception {
         doNothing().when(approvalFlowService).deleteApprovalFlow(anyLong());
-        doNothing().when(logService).recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString());
+        when(logService.recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString())).thenReturn(null);
 
         mockMvc.perform(delete("/api/approval-flow/1")
+                .requestAttr("userId", 1L)
                 .header("X-User-ID", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));

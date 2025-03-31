@@ -33,37 +33,37 @@ public class ApprovalFlowController {
     /**
      * 创建审批流程
      */
-    @PostMapping("/create")
-    @RequirePermission(Permission.APPROVAL_MANAGE)
+    @PostMapping
+    @RequirePermission(Permission.APPROVAL_SUBMIT)
     public ResponseEntity<?> createApprovalFlow(
             @RequestBody ApprovalFlowDto flowDto,
-            @RequestAttribute("userId") Long userId,
-            HttpServletRequest request) {
+            @RequestAttribute("userId") Long userId) {
         
         ApprovalFlow flow = approvalFlowService.createApprovalFlow(flowDto, userId);
         
-        // 记录操作日志
         logService.recordLog(
             "CREATE", 
             "ApprovalFlow", 
             flow.getId().toString(), 
-            "创建审批流程：" + flow.getFlowName(), 
+            "创建审批流程：" + flow.getTitle(), 
             userId, 
             null,
-            request.getRemoteAddr()
+            null
         );
         
-        return ResponseEntity.ok(flow);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("flow", flow);
+        
+        return ResponseEntity.ok(response);
     }
     
     /**
      * 获取所有审批流程
      */
-    @GetMapping("/list")
-    @RequirePermission(Permission.APPROVAL_VIEW)
-    public ResponseEntity<?> getAllApprovalFlows() {
-        List<ApprovalFlow> flows = approvalFlowService.getAllApprovalFlows();
-        return ResponseEntity.ok(flows);
+    @GetMapping
+    public List<ApprovalFlow> getAllApprovalFlows() {
+        return approvalFlowService.getAllApprovalFlows();
     }
     
     /**
@@ -104,23 +104,25 @@ public class ApprovalFlowController {
     public ResponseEntity<?> updateApprovalFlow(
             @PathVariable Long id,
             @RequestBody ApprovalFlowDto flowDto,
-            @RequestAttribute("userId") Long userId,
-            HttpServletRequest request) {
+            @RequestAttribute(name = "userId", required = false) Long userId) {
         
         ApprovalFlow flow = approvalFlowService.updateApprovalFlow(id, flowDto);
         
-        // 记录操作日志
         logService.recordLog(
             "UPDATE", 
             "ApprovalFlow", 
             id.toString(), 
-            "更新审批流程：" + flow.getFlowName(), 
+            "更新审批流程：" + flow.getTitle(), 
             userId, 
             null,
-            request.getRemoteAddr()
+            null
         );
         
-        return ResponseEntity.ok(flow);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("flow", flow);
+        
+        return ResponseEntity.ok(response);
     }
     
     /**
@@ -220,21 +222,18 @@ public class ApprovalFlowController {
     @RequirePermission(Permission.APPROVAL_MANAGE)
     public ResponseEntity<?> deleteApprovalFlow(
             @PathVariable Long id,
-            @RequestAttribute("userId") Long userId,
-            HttpServletRequest request) {
+            @RequestAttribute(name = "userId", required = false) Long userId) {
         
-        String flowName = approvalFlowService.getApprovalFlowById(id).getFlowName();
         approvalFlowService.deleteApprovalFlow(id);
         
-        // 记录操作日志
         logService.recordLog(
             "DELETE", 
             "ApprovalFlow", 
             id.toString(), 
-            "删除审批流程：" + flowName, 
+            "删除审批流程", 
             userId, 
             null,
-            request.getRemoteAddr()
+            null
         );
         
         Map<String, Object> response = new HashMap<>();

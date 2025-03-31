@@ -68,6 +68,7 @@ public class UserServiceTest {
     }
 
     @Test
+    // 测试getAllUsers方法
     void getAllUsers_shouldReturnAllUsers() {
         when(userRepository.findAll()).thenReturn(Arrays.asList(testUser));
 
@@ -75,7 +76,7 @@ public class UserServiceTest {
 
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("testuser", users.get(0).getUsername());
+        assertEquals("测试用户", users.get(0).getUsername());
     }
 
     @Test
@@ -85,7 +86,7 @@ public class UserServiceTest {
         User foundUser = userService.getUserById(1L);
 
         assertNotNull(foundUser);
-        assertEquals("testuser", foundUser.getUsername());
+        assertEquals("测试用户", foundUser.getUsername());
     }
 
     @Test
@@ -129,6 +130,6 @@ public class UserServiceTest {
 
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("EDITOR", users.get(0).getRole());
+        assertEquals("EDITOR", users.get(0).getRole().name());
     }
 } 

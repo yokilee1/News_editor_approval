@@ -4,9 +4,9 @@ import com.example.approval.model.Permission;
 import com.example.approval.model.User;
 import com.example.approval.service.RolePermissionService;
 import com.example.approval.service.UserService;
-import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -28,10 +28,15 @@ public class PermissionAspect {
     @Autowired
     private UserService userService;
     
-    @Before("@annotation(com.example.approval.security.RequirePermission)")
-    public void checkPermission(JoinPoint joinPoint) {
+    @Around("@annotation(com.example.approval.security.RequirePermission)")
+    public Object checkPermission(ProceedingJoinPoint joinPoint) throws Throwable {
         // 获取当前请求
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            // 在测试环境中，可能没有请求上下文
+            return joinPoint.proceed();
+        }
+        
         HttpServletRequest request = attributes.getRequest();
         
         // 获取当前用户
@@ -58,5 +63,7 @@ public class PermissionAspect {
         if (!rolePermissionService.hasPermission(user.getRole(), requiredPermission)) {
             throw new RuntimeException("无权执行此操作");
         }
+        
+        return joinPoint.proceed();
     }
-} 
+}

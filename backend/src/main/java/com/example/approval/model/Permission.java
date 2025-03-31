@@ -22,7 +22,7 @@ public enum Permission {
     // 系统管理权限
     SYSTEM_CONFIG,       // 系统配置
     LOG_VIEW,            // 查看日志
-    
+
     // AI工具权限
     AI_GENERATE,         // 使用AI生成内容
     AI_TREND             // 查看热点趋势

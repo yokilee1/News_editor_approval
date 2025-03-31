@@ -3,7 +3,9 @@ package com.example.approval.controller;
 import com.example.approval.model.Permission;
 import com.example.approval.security.RequirePermission;
 import com.example.approval.service.FileStorageService;
+import com.example.approval.service.FileInfoService;
 import com.example.approval.service.LogService;
+import com.example.approval.model.FileInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -30,6 +32,9 @@ public class FileController {
 
     @Autowired
     private FileStorageService fileStorageService;
+    
+    @Autowired
+    private FileInfoService fileInfoService;
     
     @Autowired
     private LogService logService;
@@ -180,5 +185,10 @@ public class FileController {
         response.put("fileName", fileName);
         
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/content/{contentId}")
+    public List<FileInfo> getFilesByContentId(@PathVariable Long contentId) {
+        return fileInfoService.getFilesByContentId(contentId);
     }
 } 

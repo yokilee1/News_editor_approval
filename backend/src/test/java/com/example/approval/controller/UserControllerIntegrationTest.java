@@ -13,6 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.context.annotation.Import;
+import com.example.approval.config.TestConfig;
 
 import java.util.Arrays;
 
@@ -25,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(TestConfig.class)
+@WithMockUser(username = "admin", roles = {"ADMIN"})
 public class UserControllerIntegrationTest {
 
     @Autowired
@@ -47,22 +52,23 @@ public class UserControllerIntegrationTest {
         testUser = new User();
         testUser.setId(1L);
         testUser.setUsername("testuser");
-        testUser.setUsername("测试用户");
+        testUser.setUsername("testuser");
         testUser.setEmail("test@example.com");
         testUser.setRole(User.Role.valueOf("EDITOR"));
 
         testUserDto = new UserDto();
         testUserDto.setUsername("testuser");
         testUserDto.setPassword("password");
-        testUserDto.setUsername("测试用户");
+        testUserDto.setUsername("testuser");
         testUserDto.setEmail("test@example.com");
         testUserDto.setRole(User.Role.valueOf("EDITOR").name());
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void createUser_shouldReturnCreatedUser() throws Exception {
         when(userService.createUser(any(UserDto.class))).thenReturn(testUser);
-        doNothing().when(logService).recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString());
+        when(logService.recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString())).thenReturn(null);
 
         mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -77,6 +83,7 @@ public class UserControllerIntegrationTest {
     void getAllUsers_shouldReturnUsers() throws Exception {
         when(userService.getAllUsers()).thenReturn(Arrays.asList(testUser));
 
+
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -87,6 +94,7 @@ public class UserControllerIntegrationTest {
     void getUserById_shouldReturnUser() throws Exception {
         when(userService.getUserById(1L)).thenReturn(testUser);
 
+
         mockMvc.perform(get("/api/users/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("testuser"));
@@ -95,7 +103,7 @@ public class UserControllerIntegrationTest {
     @Test
     void updateUser_shouldReturnUpdatedUser() throws Exception {
         when(userService.updateUserInfo(anyLong(), any(UserDto.class))).thenReturn(testUser);
-        doNothing().when(logService).recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString());
+        when(logService.recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString())).thenReturn(null);
 
         mockMvc.perform(put("/api/users/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -109,7 +117,7 @@ public class UserControllerIntegrationTest {
     @Test
     void deleteUser_shouldReturnSuccess() throws Exception {
         doNothing().when(userService).deleteUser(anyLong());
-        doNothing().when(logService).recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString());
+        when(logService.recordLog(anyString(), anyString(), anyString(), anyString(), anyLong(), any(), anyString())).thenReturn(null);
 
         mockMvc.perform(delete("/api/users/1")
                 .header("X-User-ID", "1"))

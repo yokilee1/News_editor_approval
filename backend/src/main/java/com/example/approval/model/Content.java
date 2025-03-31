@@ -53,11 +53,11 @@ public class Content {
     }
 
     public enum Type {
-        // Add appropriate type values
+        NEWS, ARTICLE, ANNOUNCEMENT, BLOG, REVIEW
     }
 
     public enum Category {
-        // Add appropriate category values
+        社会新闻, 政治, 经济, 科技, 文化, 体育, 娱乐, 生活
     }
 
     public Content() {
