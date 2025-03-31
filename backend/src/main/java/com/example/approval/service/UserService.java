@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -67,6 +67,54 @@ public class UserService {
 
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User updateUserInfo(Long userId, UserDto userDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+        user.setUsername(userDto.getUsername());
+        user.setEmail(userDto.getEmail());
+        user.setRole(User.Role.valueOf(userDto.getRole().toUpperCase()));
+        return userRepository.save(user);
+    }
+
+    public boolean resetPassword(String email) {
+        // Implementation needed
+        throw new UnsupportedOperationException("Method not implemented");
+    }
+
+    public boolean changePassword(Long userId, String oldPassword, String newPassword) {
+        // Implementation needed
+        throw new UnsupportedOperationException("Method not implemented");
+    }
+
+    public void deleteUser(long id) {
+        User user = getUserById(id);
+        userRepository.delete(user);
+    }
+
+    public User getUserById(long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("用户不存在，ID: " + id));
+    }
+
+    /**
+     * 根据角色获取用户列表
+     */
+    public List<User> getUsersByRole(String role) {
+        return userRepository.findByRole(role);
+    }
+
+    /**
+     * 根据用户名获取用户
+     */
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("用户不存在: " + username));
     }
 }

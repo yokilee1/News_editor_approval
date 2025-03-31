@@ -1,12 +1,16 @@
 package com.example.approval.repository;
 
-import com.example.approval.model.Workplan;
+import com.example.approval.model.WorkPlan;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import java.util.List;
 
-public interface WorkplanRepository extends JpaRepository<Workplan, Long> {
+@Repository
+public interface WorkplanRepository extends JpaRepository<WorkPlan, Long> {
 
-    List<Workplan> findByCreatedBy(Long userId);
+    WorkPlan findByTitle(String title);
 
-    List<Workplan> findByDocumentId(Long documentId);
+    List<WorkPlan> findByCreatedBy(Long userId);
+
+    List<WorkPlan> findByDocumentId(Long documentId);
 }

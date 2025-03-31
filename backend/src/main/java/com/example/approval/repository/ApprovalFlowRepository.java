@@ -9,8 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface ApprovalFlowRepository extends JpaRepository<ApprovalFlow, Long> {
-    List<ApprovalFlow> findByIsActive(Boolean isActive);
-    Optional<ApprovalFlow> findByIsDefaultAndIsActive(Boolean isDefault, Boolean isActive);
+    List<ApprovalFlow> findByIsActiveTrue();
+    Optional<ApprovalFlow> findByIsDefaultTrue();
     List<ApprovalFlow> findByCategory(String category);
     List<ApprovalFlow> findByFlowNameContainingIgnoreCase(String keyword);
 }

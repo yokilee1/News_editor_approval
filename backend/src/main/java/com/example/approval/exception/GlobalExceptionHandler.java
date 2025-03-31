@@ -39,5 +39,27 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * 文件上传异常处理
+     */
+    @ExceptionHandler(java.io.IOException.class)
+    public ResponseEntity<?> handleIOException(java.io.IOException ex) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", LocalDateTime.now());
+        errorDetails.put("message", "文件操作失败: " + ex.getMessage());
+        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    /**
+     * 文件大小超限异常处理
+     */
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    public ResponseEntity<?> handleMaxSizeException(org.springframework.web.multipart.MaxUploadSizeExceededException ex) {
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("timestamp", LocalDateTime.now());
+        errorDetails.put("message", "文件大小超过限制");
+        return new ResponseEntity<>(errorDetails, HttpStatus.PAYLOAD_TOO_LARGE);
+    }
+
     // 根据需求可以扩展更多的异常处理方法，例如自定义业务异常
 }

@@ -11,6 +11,9 @@ public class ApprovalNode {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "node_name")
+    private String nodeName;
+
     @Column(name = "flow_id", nullable = false)
     private Long flowId;  // 所属审批流程ID
 
@@ -19,6 +22,24 @@ public class ApprovalNode {
 
     @Column(nullable = false)
     private Long approver;  // 当前节点审批人ID
+
+    @Column(name = "approver_role")
+    private String approverRole;
+
+    @Column(name = "order_num")
+    private Integer orderNum;
+
+    @Column(name = "is_countersign")
+    private boolean countersign = false;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "allow_reject")
+    private boolean allowReject = true;
+
+    @Column(name = "reject_strategy")
+    private String rejectStrategy = "TO_PREVIOUS";
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -38,6 +59,14 @@ public class ApprovalNode {
  
     public void setId(Long id) {
         this.id = id;
+    }
+ 
+    public String getNodeName() {
+        return nodeName;
+    }
+ 
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
     }
  
     public Long getFlowId() {
@@ -62,6 +91,54 @@ public class ApprovalNode {
  
     public void setApprover(Long approver) {
         this.approver = approver;
+    }
+ 
+    public String getApproverRole() {
+        return approverRole;
+    }
+ 
+    public void setApproverRole(String approverRole) {
+        this.approverRole = approverRole;
+    }
+ 
+    public Integer getOrderNum() {
+        return orderNum;
+    }
+ 
+    public void setOrderNum(Integer orderNum) {
+        this.orderNum = orderNum;
+    }
+ 
+    public boolean isCountersign() {
+        return countersign;
+    }
+ 
+    public void setCountersign(boolean countersign) {
+        this.countersign = countersign;
+    }
+ 
+    public String getDescription() {
+        return description;
+    }
+ 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+ 
+    public boolean isAllowReject() {
+        return allowReject;
+    }
+ 
+    public void setAllowReject(boolean allowReject) {
+        this.allowReject = allowReject;
+    }
+ 
+    public String getRejectStrategy() {
+        return rejectStrategy;
+    }
+ 
+    public void setRejectStrategy(String rejectStrategy) {
+        this.rejectStrategy = rejectStrategy;
     }
  
     public LocalDateTime getCreatedAt() {

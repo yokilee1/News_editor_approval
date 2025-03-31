@@ -40,8 +40,24 @@ public class Content {
     @Column(name = "rejected_at")
     private LocalDateTime rejectedAt;
 
+    @Column(nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private Type type;
+
+    @Column(nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private Category category;
+
     public enum Status {
         DRAFT, PENDING, APPROVED, REJECTED, PUBLISHED, ARCHIVED
+    }
+
+    public enum Type {
+        // Add appropriate type values
+    }
+
+    public enum Category {
+        // Add appropriate category values
     }
 
     public Content() {
@@ -128,5 +144,21 @@ public class Content {
  
     public void setRejectedAt(LocalDateTime rejectedAt) {
         this.rejectedAt = rejectedAt;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

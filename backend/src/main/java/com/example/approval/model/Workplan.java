@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "workplan")
-public class Workplan {
+public class WorkPlan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,8 +21,8 @@ public class Workplan {
     @Column(length = 50)
     private String type;  // 文档类型或工作计划类型
 
-    @Column(length = 50)
-    private String status; // 状态，如草稿、待审批、已批准等
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @Column(name = "document_id")
     private Long documentId;  // 关联稿件ID
@@ -45,8 +45,12 @@ public class Workplan {
     @Column(name = "rejected_at")
     private LocalDateTime rejectedAt;
 
-    public Workplan() {
+    public WorkPlan() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    public enum Status {
+        DRAFT, SUBMITTED, APPROVED, REJECTED
     }
 
     // Getter 和 Setter
@@ -82,11 +86,11 @@ public class Workplan {
         this.type = type;
     }
  
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
  
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
  

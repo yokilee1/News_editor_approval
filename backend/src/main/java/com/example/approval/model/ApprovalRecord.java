@@ -7,6 +7,12 @@ import java.time.LocalDateTime;
 @Table(name = "approval_record")
 public class ApprovalRecord {
 
+    public enum Status {
+        PENDING,  // 待审批
+        APPROVED, // 已通过
+        REJECTED  // 已拒绝
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,6 +29,9 @@ public class ApprovalRecord {
 
     @Column(name = "approver_id")
     private Long approverId;  // 审批人ID
+
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.PENDING;
 
     @Lob
     private String comment;   // 审批意见
@@ -100,5 +109,13 @@ public class ApprovalRecord {
  
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
