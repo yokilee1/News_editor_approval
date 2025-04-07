@@ -11,10 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class APITests {
-    static final String apiKey = "4898730e-9fcb-4f41-94f8-24776cd02ee5";
+// 请确保您已将 API Key 存储在环境变量 ARK_API_KEY 中
+// 初始化Ark客户端，从环境变量中读取您的API Key
+public class ChatService {
+    private static final String ARK_API_KEY = null;
     // 从环境变量中获取您的 API Key。此为默认方式，您可根据需要进行修改
-//    static String apiKey = System.getenv(ARK_API_KEY);
+    static String apiKey = System.getenv(ARK_API_KEY);
     // 此为默认路径，您可根据业务所在地域进行配置
     static String baseUrl = "https://ark.cn-beijing.volces.com/api/v3";
     static ConnectionPool connectionPool = new ConnectionPool(5, 1, TimeUnit.SECONDS);
@@ -31,7 +33,7 @@ public class APITests {
 
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
                 // 指定您创建的方舟推理接入点 ID，此处已帮您修改为您的推理接入点 ID
-                .model("doubao-pro-32k-241215")
+                .model("doubao-1-5-pro-32k-250115")
                 .messages(messages)
                 .build();
 
@@ -46,7 +48,7 @@ public class APITests {
 
         ChatCompletionRequest streamChatCompletionRequest = ChatCompletionRequest.builder()
                 // 指定您创建的方舟推理接入点 ID，此处已帮您修改为您的推理接入点 ID
-                .model("doubao-pro-32k-241215")
+                .model("doubao-1-5-pro-32k-250115")
                 .messages(messages)
                 .build();
 
@@ -62,4 +64,5 @@ public class APITests {
 
         service.shutdownExecutor();
     }
+
 }
