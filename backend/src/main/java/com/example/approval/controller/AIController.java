@@ -39,7 +39,7 @@ public class AIController {
         User user = userService.getUserProfile(userId);
         AIResponseDto response = aiService.generateContent(request, userId, user.getRole());
         
-        if (!response.isSuccess()) {
+        if (response.getError() != null) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             errorResponse.put("message", response.getError());
@@ -48,7 +48,7 @@ public class AIController {
         
         Map<String, Object> successResponse = new HashMap<>();
         successResponse.put("success", true);
-        successResponse.put("content", response.getText());
+        successResponse.put("content", response.getContent());
         successResponse.put("model", response.getModel());
         successResponse.put("tokensUsed", response.getTokensUsed());
         
@@ -67,7 +67,7 @@ public class AIController {
         User user = userService.getUserProfile(userId);
         AIResponseDto response = aiService.generateTrendAnalysis(topic, userId, user.getRole());
         
-        if (!response.isSuccess()) {
+        if (response.getError() != null) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             errorResponse.put("message", response.getError());
@@ -76,7 +76,7 @@ public class AIController {
         
         Map<String, Object> successResponse = new HashMap<>();
         successResponse.put("success", true);
-        successResponse.put("analysis", response.getText());
+        successResponse.put("analysis", response.getContent());
         successResponse.put("topic", topic);
         successResponse.put("tokensUsed", response.getTokensUsed());
         
