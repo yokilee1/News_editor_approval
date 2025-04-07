@@ -62,7 +62,7 @@ public class AuthController {
      * 用户登录：返回 JWT Token
      */
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
         AuthResponse response = authService.authenticate(request);
         return ResponseEntity.ok(response);
     }

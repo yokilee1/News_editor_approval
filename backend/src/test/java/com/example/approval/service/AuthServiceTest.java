@@ -4,6 +4,7 @@ import com.example.approval.dto.AuthRequest;
 import com.example.approval.dto.AuthResponse;
 import com.example.approval.model.User;
 import com.example.approval.repository.UserRepository;
+import com.example.approval.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

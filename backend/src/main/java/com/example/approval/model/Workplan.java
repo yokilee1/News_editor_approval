@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "workplan")
-public class WorkPlan {
+public class Workplan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +45,7 @@ public class WorkPlan {
     @Column(name = "rejected_at")
     private LocalDateTime rejectedAt;
 
-    public WorkPlan() {
+    public Workplan() {
         this.createdAt = LocalDateTime.now();
     }
 

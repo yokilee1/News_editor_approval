@@ -17,68 +17,83 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref, shallowRef, onBeforeUnmount, watch } from 'vue'
 import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 
-/* eslint-disable no-undef */
-const props = defineProps({
-  modelValue: {
-    type: String,
-    default: ''
+export default {
+  name: 'RichTextEditor',
+  components: {
+    Editor,
+    Toolbar
   },
-  mode: {
-    type: String,
-    default: 'default'
+  props: {
+    modelValue: {
+      type: String,
+      default: ''
+    },
+    mode: {
+      type: String,
+      default: 'default'
+    }
+  },
+  emits: ['update:modelValue', 'change'],
+  setup(props, { emit }) {
+    // 编辑器实例，必须用 shallowRef
+    const editorRef = shallowRef()
+
+    // 内容 HTML
+    const valueHtml = ref(props.modelValue)
+
+    // 模拟 ajax 异步获取内容
+    watch(() => props.modelValue, (val) => {
+      valueHtml.value = val
+    })
+
+    // 工具栏配置
+    const toolbarConfig = {
+      excludeKeys: [
+        'uploadImage',
+        'uploadVideo',
+        'insertTable',
+        'group-video',
+        'group-image'
+      ]
+    }
+
+    // 编辑器配置
+    const editorConfig = {
+      placeholder: '请输入内容...',
+      autoFocus: false,
+      readOnly: props.mode === 'preview'
+    }
+
+    // 组件销毁时，也及时销毁编辑器
+    onBeforeUnmount(() => {
+      const editor = editorRef.value
+      if (editor == null) return
+      editor.destroy()
+    })
+
+    const handleCreated = (editor) => {
+      editorRef.value = editor
+    }
+
+    const handleChange = (editor) => {
+      emit('update:modelValue', editor.getHtml())
+      emit('change', editor.getHtml())
+    }
+
+    return {
+      editorRef,
+      valueHtml,
+      toolbarConfig,
+      editorConfig,
+      handleCreated,
+      handleChange
+    }
   }
-})
-
-const emit = defineEmits(['update:modelValue', 'change'])
-
-// 编辑器实例，必须用 shallowRef
-const editorRef = shallowRef()
-
-// 内容 HTML
-const valueHtml = ref(props.modelValue)
-
-// 模拟 ajax 异步获取内容
-watch(() => props.modelValue, (val) => {
-  valueHtml.value = val
-})
-
-// 工具栏配置
-const toolbarConfig = {
-  excludeKeys: [
-    'uploadImage',
-    'uploadVideo',
-    'insertTable',
-    'group-video',
-    'group-image'
-  ]
-}
-
-// 编辑器配置
-const editorConfig = {
-  placeholder: '请输入内容...',
-  autoFocus: false,
-  readOnly: props.mode === 'preview'
-}
-
-// 组件销毁时，也及时销毁编辑器
-onBeforeUnmount(() => {
-  const editor = editorRef.value
-  if (editor == null) return
-  editor.destroy()
-})
-
-const handleCreated = (editor) => {
-  editorRef.value = editor
-}
-
-const handleChange = (editor) => {
-  emit('update:modelValue', editor.getHtml())
-  emit('change', editor.getHtml())
 }
 </script>
 

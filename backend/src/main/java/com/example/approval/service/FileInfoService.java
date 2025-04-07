@@ -67,6 +67,7 @@ public class FileInfoService {
         String originalFilename = file.getOriginalFilename();
         String fileName = UUID.randomUUID().toString() + "_" + originalFilename;
         
+        // 保存文件信息到数据库
         FileInfo fileInfo = new FileInfo();
         fileInfo.setFileName(fileName);
         fileInfo.setOriginalName(originalFilename);

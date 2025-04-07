@@ -1,12 +1,18 @@
-import axios from 'axios';
-
-const API_URL = '/api/auth';
+import request from '@/utils/axios';
 
 export default {
   login(credentials) {
-    return axios.post(`${API_URL}/login`, credentials);
+    console.log('登录请求数据:', credentials);  // 添加日志
+    return request.post('/api/auth/login', credentials).then(response => {
+      console.log('登录响应:', response.data);  // 添加日志
+      return response.data;
+    });
   },
   register(userData) {
-    return axios.post(`${API_URL}/register`, userData);
+    console.log('注册请求数据:', userData);  // 添加日志
+    return request.post('/api/auth/register', userData).then(response => {
+      console.log('注册响应:', response.data);  // 添加日志
+      return response.data;
+    });
   }
 };

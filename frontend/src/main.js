@@ -4,6 +4,7 @@ import router from './router';
 import store from './store';
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
+import './styles/element-override.scss';
 
 const app = createApp(App);
 app.use(router);

@@ -17,6 +17,9 @@ public class User {
     @Column(nullable = false, length = 255)
     private String password; // 存储加密后的密码
     
+    @Column(nullable = false, length = 50)
+    private String name;
+    
     @Column(nullable = false, unique = true, length = 100)
     private String email;
     
@@ -56,6 +59,14 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPassword() {

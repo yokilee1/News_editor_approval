@@ -14,6 +14,10 @@ public class UserDto {
     private String password;
 
     @NotBlank
+    @Size(min = 2, max = 50)
+    private String name;
+
+    @NotBlank
     @Email
     private String email;
     // 角色值应与 User.Role 枚举一致，如 "ADMIN", "EDITOR", "APPROVER", "USER"
@@ -51,5 +55,13 @@ public class UserDto {
  
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

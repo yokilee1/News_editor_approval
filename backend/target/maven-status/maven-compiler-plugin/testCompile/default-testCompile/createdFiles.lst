@@ -1,0 +1,17 @@
+com\example\approval\service\AuthServiceTest.class
+com\example\approval\service\ApprovalFlowServiceTest.class
+com\example\approval\controller\ApprovalFlowControllerIntegrationTest.class
+com\example\approval\controller\UserControllerIntegrationTest.class
+com\example\approval\controller\ApprovalControllerIntegrationTest.class
+com\example\approval\security\PermissionAspectTestConfig.class
+com\example\approval\controller\AIControllerIntegrationTest.class
+com\example\approval\service\UserServiceTest.class
+com\example\approval\security\MockUserIdFilter.class
+com\example\approval\controller\FileControllerIntegrationTest.class
+com\example\approval\service\NotificationServiceTest.class
+com\example\approval\security\PermissionAspectTestConfig$1.class
+com\example\approval\service\ApprovalServiceTest.class
+com\example\approval\controller\AuthControllerIntegrationTest.class
+com\example\approval\service\FileInfoServiceTest.class
+com\example\approval\service\ContentServiceTest.class
+com\example\approval\config\TestConfig.class

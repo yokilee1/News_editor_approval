@@ -8,7 +8,7 @@
         </div>
       </template>
       
-      <el-form ref="loginForm" :model="loginForm" :rules="loginRules" label-width="0" @submit.prevent="handleLogin">
+      <el-form ref="formRef" :model="loginForm" :rules="loginRules" label-width="0" @submit.prevent="handleLogin">
         <el-form-item prop="username">
           <el-input v-model="loginForm.username" prefix-icon="el-icon-user" placeholder="用户名" />
         </el-form-item>
@@ -41,6 +41,7 @@ import { ElMessage } from 'element-plus';
 const store = useStore();
 const router = useRouter();
 const loading = ref(false);
+const formRef = ref(null);
 
 const loginForm = reactive({
   username: '',
@@ -53,14 +54,23 @@ const loginRules = {
 };
 
 const handleLogin = async () => {
+  if (!formRef.value) return;
+  
   try {
+    await formRef.value.validate();
     loading.value = true;
     await store.dispatch('login', loginForm);
     ElMessage.success('登录成功');
     router.push('/dashboard');
   } catch (error) {
+    if (error.response) {
+      ElMessage.error(error.response?.data?.message || '登录失败，请检查用户名和密码');
+    } else if (error.message) {
+      ElMessage.error(error.message);
+    } else {
+      ElMessage.error('登录失败，请检查用户名和密码');
+    }
     console.error('登录失败:', error);
-    ElMessage.error(error.response?.data?.message || '登录失败，请检查用户名和密码');
   } finally {
     loading.value = false;
   }

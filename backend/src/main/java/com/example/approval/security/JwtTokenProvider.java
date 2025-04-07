@@ -1,23 +1,19 @@
 package com.example.approval.security;
 
 import io.jsonwebtoken.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
-
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
 
-    // 从配置文件读取密钥和有效期
-    @Value("${security.jwt.token.secret-key:secret-key}")
-    private String secretKey;
+    private final SecretKey key;
+    private final long validityInMilliseconds = 3600000; // 1小时
 
-    // 令牌有效期，单位为毫秒（例如：3600000毫秒=1小时）
-    @Value("${security.jwt.token.expire-length:3600000}")
-    private long validityInMilliseconds;
+    public JwtTokenProvider(SecretKey key) {
+        this.key = key;
+    }
 
     // 根据用户名生成 JWT Token
     public String createToken(String username, String role) {
@@ -26,8 +22,6 @@ public class JwtTokenProvider {
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
-        
-        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -40,7 +34,7 @@ public class JwtTokenProvider {
     // 从 Token 中解析用户名
     public String getUsername(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody().getSubject();
@@ -50,7 +44,7 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token);
             return true;

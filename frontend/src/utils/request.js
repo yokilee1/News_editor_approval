@@ -4,7 +4,7 @@ import router from '@/router';
 
 // 创建axios实例
 const request = axios.create({
-  baseURL: '/api',
+  baseURL: '',
   timeout: 15000
 });
 
