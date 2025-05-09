@@ -50,7 +50,7 @@ public class ApprovalService {
         ApprovalRecord record = new ApprovalRecord();
         record.setTaskType("Content");
         record.setTaskId(contentId.toString());
-        record.setApproverId(userId);
+        record.setApproverId(3L);
         record.setCreatedAt(LocalDateTime.now());
         record.setUpdatedAt(LocalDateTime.now());
         approvalRecordRepository.save(record);
@@ -97,6 +97,31 @@ public class ApprovalService {
         notificationService.sendApprovalTaskNotification(record, content);
 
         return contentRepository.save(content);
+    }
+
+    /**
+     * 获取审批统计数据
+     */
+    public Map<String, Object> getApprovalStats(Long userId) {
+        Map<String, Object> stats = new HashMap<>();
+        
+        // 统计待审批稿件数量
+        long pendingCount = contentRepository.countByStatus(Content.Status.PENDING);
+        stats.put("pending", pendingCount);
+        
+        // 统计已通过稿件数量
+        long approvedCount = contentRepository.countByStatus(Content.Status.APPROVED);
+        stats.put("approved", approvedCount);
+        
+        // 统计已驳回稿件数量
+        long rejectedCount = contentRepository.countByStatus(Content.Status.REJECTED);
+        stats.put("rejected", rejectedCount);
+        
+        // 统计草稿箱数量
+        long draftCount = contentRepository.countByStatusAndCreatedBy(Content.Status.DRAFT, userId);
+        stats.put("draft", draftCount);
+        
+        return stats;
     }
 
     /**

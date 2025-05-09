@@ -2,6 +2,8 @@ package com.example.approval.service;
 
 import com.example.approval.dto.AIRequestDto;
 import com.example.approval.dto.AIResponseDto;
+import com.example.approval.dto.ContentDto;
+import com.example.approval.model.Content;
 import com.example.approval.model.Permission;
 import com.example.approval.model.User;
 import com.volcengine.ark.runtime.model.completion.chat.ChatCompletionChoice;
@@ -26,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class AIService {
 
-    @Value("${volc.api.key}")
+    @Value("${volc.api.key:8bd176a4-fc4c-4ec1-bde4-62a79566bf2c}")
     private String apiKey;
 
     @Value("${volc.api.url:https://ark.cn-beijing.volces.com/api/v3}")
@@ -52,9 +54,13 @@ public class AIService {
                 .build();
     }
 
+    @Autowired
+    private ContentService contentService;
+
     /**
      * 调用火山引擎 API 生成内容
      */
+
     public AIResponseDto generateContent(AIRequestDto request, Long userId, User.Role userRole) {
         try {
             // 检查用户权限
@@ -117,7 +123,18 @@ public class AIService {
                         null
                 );
 
-                return new AIResponseDto(generatedText, request.getModel(), 0);
+                // 将AI生成的内容保存到数据库
+                ContentDto contentDto = new ContentDto();
+                contentDto.setTitle(request.getPrompt());
+                contentDto.setContent(generatedText);
+                contentDto.setCategory(request.getCategory());
+                contentDto.setTags(request.getTags());
+                contentDto.setIsDraft(true); // 设置为草稿状态
+
+                // 保存内容
+                Content savedContent = contentService.createContent(contentDto, userId);
+
+                return new AIResponseDto(generatedText, request.getModel(), Math.toIntExact(savedContent.getId()));
             }
 
             return new AIResponseDto("AI响应解析失败");

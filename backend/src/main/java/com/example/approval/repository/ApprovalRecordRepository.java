@@ -15,4 +15,7 @@ public interface ApprovalRecordRepository extends JpaRepository<ApprovalRecord, 
     List<ApprovalRecord> findByApproverIdAndStatusNot(Long approverId, ApprovalRecord.Status status);
     Long countByApproverIdAndStatus(Long approverId, ApprovalRecord.Status status);
     Optional<ApprovalRecord> findByTaskTypeAndTaskIdAndApproverId(String taskType, String taskId, Long approverId);
+    //添加记录
+    ApprovalRecord save(ApprovalRecord approvalRecord);
+
 }

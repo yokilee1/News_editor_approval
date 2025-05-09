@@ -83,4 +83,11 @@ public class UserController {
     }
 
     // 可继续添加更新用户信息等接口
+    /*
+    * 展示所有用户列表
+     */
+    @GetMapping("/list")
+    public List<User> getUserList() {
+        return userService.getAllUsers();
+    }
 }

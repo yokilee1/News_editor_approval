@@ -36,7 +36,8 @@ public class User {
         ADMIN,
         EDITOR,
         APPROVER,
-        USER
+        USER,
+        PUBLISHER
     }
 
     // 构造方法

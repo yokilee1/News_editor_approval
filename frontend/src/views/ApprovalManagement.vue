@@ -1,221 +1,232 @@
+<!-- src/views/ApprovalManagement.vue -->
 <template>
-  <div class="approval-container">
-    <el-tabs v-model="activeTab" class="approval-tabs">
-      <el-tab-pane label="待我审批" name="pending">
-        <el-table :data="pendingList" style="width: 100%">
-          <el-table-column prop="title" label="标题" min-width="200" />
-          <el-table-column prop="author" label="作者" width="120" />
-          <el-table-column prop="category" label="分类" width="100">
-            <template #default="{ row }">
-              <el-tag>{{ row.category }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="submitTime" label="提交时间" width="180" />
-          <el-table-column label="操作" width="200" fixed="right">
-            <template #default="{ row }">
-              <el-button type="primary" size="small" @click="handleView(row)">
-                查看
-              </el-button>
-              <el-button type="success" size="small" @click="handleApprove(row)">
-                通过
-              </el-button>
-              <el-button type="danger" size="small" @click="handleReject(row)">
-                驳回
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-tab-pane>
-
-      <el-tab-pane label="我已审批" name="processed">
-        <el-table :data="processedList" style="width: 100%">
-          <el-table-column prop="title" label="标题" min-width="200" />
-          <el-table-column prop="author" label="作者" width="120" />
-          <el-table-column prop="status" label="状态" width="100">
-            <template #default="{ row }">
-              <el-tag :type="row.status === 'approved' ? 'success' : 'danger'">
-                {{ row.status === 'approved' ? '已通过' : '已驳回' }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="approvalTime" label="审批时间" width="180" />
-          <el-table-column prop="comment" label="审批意见" min-width="200" />
-          <el-table-column label="操作" width="100" fixed="right">
-            <template #default="{ row }">
-              <el-button type="primary" size="small" @click="handleView(row)">
-                查看
-              </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-tab-pane>
-    </el-tabs>
-
-    <!-- 审批对话框 -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="dialogType === 'approve' ? '通过审批' : '驳回稿件'"
-      width="500px"
-    >
-      <el-form ref="approvalForm" :model="approvalForm" :rules="approvalRules">
-        <el-form-item label="审批意见" prop="comment">
-          <el-input
-            v-model="approvalForm.comment"
-            type="textarea"
-            :rows="4"
-            placeholder="请输入审批意见"
+  <div class="approval-management">
+    <div class="page-header">
+      <h2 class="page-title">审批管理</h2>
+      <div class="header-actions">
+        <el-select v-model="activeTab" class="tab-selector">
+          <el-option label="待审批" value="pending"></el-option>
+          <el-option label="已处理" value="processed"></el-option>
+        </el-select>
+      </div>
+    </div>
+    
+    <el-card class="approval-card" shadow="hover">
+      <el-tabs v-model="activeTab" class="approval-tabs">
+        <el-tab-pane label="待审批" name="pending">
+          <approval-list 
+            ref="pendingListRef"
+            :status="'pending'"
+            @view-detail="navigateToDetail"
           />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitApproval" :loading="submitting">
-            确认
-          </el-button>
-        </span>
+        </el-tab-pane>
+        <el-tab-pane label="已处理" name="processed">
+          <approval-list 
+            ref="processedListRef"
+            :status="'processed'"
+            @view-detail="navigateToDetail"
+          />
+        </el-tab-pane>
+      </el-tabs>
+    </el-card>
+    
+    <!-- 加载错误时的提示 -->
+    <el-card v-if="loadError" class="error-card">
+      <template #header>
+        <div class="error-header">
+          <i class="el-icon-warning"></i> 
+          <span>数据加载失败</span>
+        </div>
       </template>
-    </el-dialog>
+      <div class="error-content">
+        <p>{{ errorMessage }}</p>
+        <el-button type="primary" @click="retryLoad">重新加载</el-button>
+      </div>
+    </el-card>
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+<script>
+import { ref, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import ApprovalList from '@/components/ApprovalList.vue';
+import { ElMessage } from 'element-plus';
 
-const activeTab = ref('pending')
-const dialogVisible = ref(false)
-const dialogType = ref('')
-const submitting = ref(false)
-
-const pendingList = ref([])
-const processedList = ref([])
-
-const currentContent = ref(null)
-const approvalForm = reactive({
-  comment: ''
-})
-
-const approvalRules = {
-  comment: [{ required: true, message: '请输入审批意见', trigger: 'blur' }]
-}
-
-// 获取待审批列表
-const fetchPendingList = async () => {
-  try {
-    // TODO: 调用获取待审批列表API
-    pendingList.value = [
-      {
-        id: 1,
-        title: '关于科技创新的深度报道',
-        author: '张三',
-        category: '科技',
-        submitTime: '2024-01-20 10:30:00'
-      },
-      {
-        id: 2,
-        title: '经济政策解读',
-        author: '李四',
-        category: '经济',
-        submitTime: '2024-01-20 09:15:00'
+export default {
+  name: 'ApprovalManagement',
+  components: { ApprovalList },
+  setup() {
+    const router = useRouter();
+    const activeTab = ref('pending');
+    const pendingListRef = ref(null);
+    const processedListRef = ref(null);
+    const loadError = ref(false);
+    const errorMessage = ref('');
+    
+    const navigateToDetail = (contentId) => {
+      if (contentId) {
+        router.push(`/approvals/${contentId}`);
       }
-    ]
-  } catch (error) {
-    ElMessage.error('获取待审批列表失败')
-  }
-}
-
-// 获取已审批列表
-const fetchProcessedList = async () => {
-  try {
-    // TODO: 调用获取已审批列表API
-    processedList.value = [
-      {
-        id: 3,
-        title: '文化产业发展趋势',
-        author: '王五',
-        status: 'approved',
-        approvalTime: '2024-01-19 15:30:00',
-        comment: '内容详实，观点准确'
-      },
-      {
-        id: 4,
-        title: '教育改革新动向',
-        author: '赵六',
-        status: 'rejected',
-        approvalTime: '2024-01-19 14:20:00',
-        comment: '需要补充更多数据支撑'
+    };
+    
+    // 监听标签页变化
+    watch(activeTab, (newVal) => {
+      checkLoadStatus();
+    });
+    
+    // 检查列表加载状态
+    const checkLoadStatus = () => {
+      const currentListRef = activeTab.value === 'pending' ? pendingListRef.value : processedListRef.value;
+      
+      if (!currentListRef) {
+        loadError.value = true;
+        errorMessage.value = '列表组件加载失败，请刷新页面重试。';
+        return;
       }
-    ]
-  } catch (error) {
-    ElMessage.error('获取已审批列表失败')
+      
+      if (currentListRef.loadError) {
+        loadError.value = true;
+        errorMessage.value = currentListRef.errorMessage || '获取审批列表失败，可能是网络问题或服务器故障。';
+      } else {
+        loadError.value = false;
+      }
+    };
+    
+    // 重试加载数据
+    const retryLoad = () => {
+      loadError.value = false;
+      const currentListRef = activeTab.value === 'pending' ? pendingListRef.value : processedListRef.value;
+      
+      if (currentListRef && currentListRef.fetchApprovals) {
+        currentListRef.fetchApprovals().catch(error => {
+          loadError.value = true;
+          errorMessage.value = error.message || '重新加载失败';
+          ElMessage.error('重新加载失败');
+        });
+      } else {
+        ElMessage.error('组件未就绪，请刷新页面');
+      }
+    };
+    
+    onMounted(() => {
+      setTimeout(() => {
+        checkLoadStatus();
+      }, 1000);
+    });
+    
+    return {
+      activeTab,
+      navigateToDetail,
+      pendingListRef,
+      processedListRef,
+      loadError,
+      errorMessage,
+      retryLoad
+    };
   }
-}
-
-// 查看稿件
-const handleView = (content) => {
-  // TODO: 实现稿件预览功能
-  console.log('查看稿件:', content)
-}
-
-// 通过审批
-const handleApprove = (content) => {
-  dialogType.value = 'approve'
-  currentContent.value = content
-  dialogVisible.value = true
-}
-
-// 驳回稿件
-const handleReject = (content) => {
-  dialogType.value = 'reject'
-  currentContent.value = content
-  dialogVisible.value = true
-}
-
-// 提交审批
-const submitApproval = async () => {
-  if (!approvalForm.comment) {
-    ElMessage.warning('请输入审批意见')
-    return
-  }
-
-  try {
-    submitting.value = true
-    // TODO: 调用审批API
-    const action = dialogType.value === 'approve' ? '通过' : '驳回'
-    ElMessage.success(`${action}审批成功`)
-    dialogVisible.value = false
-    fetchPendingList()
-    fetchProcessedList()
-  } catch (error) {
-    ElMessage.error(error.message || '审批操作失败')
-  } finally {
-    submitting.value = false
-    approvalForm.comment = ''
-  }
-}
-
-onMounted(() => {
-  fetchPendingList()
-  fetchProcessedList()
-})
+};
 </script>
 
 <style scoped>
-.approval-container {
-  padding: 20px;
+.approval-management {
+  padding: 0;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.approval-tabs {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
-
-.dialog-footer {
+.page-header {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 20px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #303133;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
   gap: 10px;
+}
+
+.tab-selector {
+  display: none;
+}
+
+.approval-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  margin-bottom: 20px;
+  transition: all 0.3s;
+}
+
+.approval-card:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.approval-tabs :deep(.el-tabs__header) {
+  margin-bottom: 20px;
+}
+
+.approval-tabs :deep(.el-tabs__nav) {
+  border-radius: 4px;
+}
+
+.approval-tabs :deep(.el-tabs__item) {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 20px;
+  height: 40px;
+  line-height: 40px;
+}
+
+.error-card {
+  margin-top: 40px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  color: #f56c6c;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.error-content {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.error-content p {
+  margin-bottom: 20px;
+  color: #606266;
+}
+
+@media (max-width: 768px) {
+  .approval-tabs {
+    display: none;
+  }
+  
+  .tab-selector {
+    display: block;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .header-actions {
+    width: 100%;
+  }
 }
 </style>

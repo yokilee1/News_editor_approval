@@ -27,7 +27,6 @@ public class ContentController {
     
     @Autowired
     private LogService logService;
-
     /**
      * 创建稿件（默认保存为草稿）
      * 需要CONTENT_CREATE权限

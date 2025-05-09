@@ -3,9 +3,10 @@ package com.example.approval.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +21,15 @@ public class JwtService {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
     private final SecretKey key;
-    private final long expiration = 86400; // 24小时
+    
+    @Value("${jwt.expiration}")
+    private long expiration; // 从配置中读取过期时间
 
-    public JwtService() {
-        // 使用 Keys.secretKeyFor 生成安全的密钥
-        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-        logger.debug("JwtService 初始化完成，密钥已生成");
+    @Autowired
+    public JwtService(SecretKey jwtSecretKey) {
+        // 使用 JwtConfig 提供的密钥
+        this.key = jwtSecretKey;
+        logger.debug("JwtService 初始化完成，使用注入的密钥");
     }
 
     public String generateToken(UserDetails userDetails) {

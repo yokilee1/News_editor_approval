@@ -5,14 +5,27 @@ VALUES
 (2, 'editor', '$2a$10$1Qv0GRwYH7XEkQkVlwOjl.0K37LUMHo3T8nJ8GjeNxR.eH5ewTO0i', '编辑', 'editor@example.com', 'EDITOR', NOW()),
 (3, 'approver1', '$2a$10$D9nFh7UncP5lA8MxlEYp4OdK5LJ6TndUljKj7NHuzwrsYFhrwrw6S', '一级审批人', 'approver1@example.com', 'APPROVER', NOW()),
 (4, 'approver2', '$2a$10$D9nFh7UncP5lA8MxlEYp4OdK5LJ6TndUljKj7NHuzwrsYFhrwrw6S', '二级审批人', 'approver2@example.com', 'APPROVER', NOW()),
-(5, 'publisher', '$2a$10$D9nFh7UncP5lA8MxlEYp4OdK5LJ6TndUljKj7NHuzwrsYFhrwrw6S', '发布员', 'publisher@example.com', 'PUBLISHER', NOW());
+(5, 'publisher', '$2a$10$D9nFh7UncP5lA8MxlEYp4OdK5LJ6TndUljKj7NHuzwrsYFhrwrw6S', '发布员', 'publisher@example.com', 'PUBLISHER', NOW()),
+(6, 'lyj', '$2a$10$RfyGeZuy20FSlvjidjpBOuXojgfCqf0pP4zcOfcEag8AeifztGjIy', '管理员', 'rejector@example.com', 'ADMIN', NOW());
 
 -- 预置内容数据
-INSERT INTO content (id, title, content, type, category, status, created_by, created_at)
+INSERT INTO content (id, title, content, summary, type, category, status, created_by, created_at, submitted_at, approved_at, rejected_at)
 VALUES 
-(1, '测试新闻稿件', '这是一个测试新闻稿件的内容。', 'NEWS', '社会新闻', 'DRAFT', 2, NOW()),
-(2, '政策解读文章', '这是一篇关于最新政策的解读文章。', 'ARTICLE', '政策解读', 'DRAFT', 2, NOW()),
-(3, '财经分析报告', '这是一份详细的财经分析报告内容。', 'REPORT', '财经分析', 'PENDING', 2, NOW());
+-- 草稿状态
+(1, '测试新闻稿件', '这是一个测试新闻稿件的内容。', '测试新闻稿件摘要', 'NEWS', '社会新闻', 'DRAFT', 2, NOW(), NULL, NULL, NULL),
+(2, '政策解读文章', '这是一篇关于最新政策的解读文章。', '最新政策解读要点', 'ARTICLE', '政策解读', 'DRAFT', 2, NOW(), NULL, NULL, NULL),
+
+-- 待审批状态
+(3, '财经分析报告', '这是一份详细的财经分析报告内容。', '本月财经形势分析', 'REPORT', '财经分析', 'PENDING', 2, NOW(), NOW(), NULL, NULL),
+(4, '城市规划新政出台', '近日，我市发布新一轮城市规划政策，涉及住房、交通等多个领域...', '解读最新城市规划政策要点', 'NEWS', '城市建设', 'PENDING', 2, NOW(), NOW(), NULL, NULL),
+
+-- 已通过状态
+(5, '科技创新成果展示', '我市多家高科技企业在国际展会上展示最新研发成果...', '本地企业科技创新成果汇总', 'ARTICLE', '科技创新', 'APPROVED', 2, NOW(), NOW(), NOW(), NULL),
+(6, '教育改革新举措', '教育部门出台新政策，推进素质教育发展...', '教育改革政策解读', 'NEWS', '教育', 'APPROVED', 2, NOW(), NOW(), NOW(), NULL),
+
+-- 已拒绝状态
+(7, '某企业经营异常', '某知名企业出现经营异常情况，可能存在财务问题...', '企业经营风险提示', 'REPORT', '财经监管', 'REJECTED', 2, NOW(), NOW(), NULL, NOW()),
+(8, '网络谣言调查', '针对近期网络流传的某谣言进行深入调查...', '澄清网络虚假信息', 'ARTICLE', '社会', 'REJECTED', 2, NOW(), NOW(), NULL, NOW());
 
 -- 预置审批流程
 INSERT INTO approval_flow (id, title, name, flow_name, description, level, category, is_active, is_default, created_by, created_at)

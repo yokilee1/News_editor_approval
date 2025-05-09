@@ -29,6 +29,8 @@ CREATE TABLE content (
     content TEXT NOT NULL,
     type VARCHAR(50) NOT NULL,
     category VARCHAR(50),
+    summary TEXT NULL,
+    tags VARCHAR(255) NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
     created_by BIGINT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

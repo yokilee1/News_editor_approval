@@ -1,9 +1,11 @@
 package com.example.approval.controller;
 
 import com.example.approval.dto.ApprovalDto;
+import com.example.approval.model.ApprovalFlow;
 import com.example.approval.model.Content;
 import com.example.approval.model.Permission;
 import com.example.approval.security.RequirePermission;
+import com.example.approval.service.ApprovalFlowService;
 import com.example.approval.service.ApprovalService;
 import com.example.approval.service.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class ApprovalController {
 
     @Autowired
     private ApprovalService approvalService;
+
+    @Autowired
+    private ApprovalFlowService approvalFlowService;
     
     @Autowired
     private LogService logService;
@@ -37,9 +42,10 @@ public class ApprovalController {
             @PathVariable Long contentId,
             @RequestAttribute("userId") Long userId,
             HttpServletRequest request) {
-        
+
         Content content = approvalService.submitForApproval(contentId, userId);
-        
+
+
         // 记录操作日志
         logService.recordLog(
             "SUBMIT", 
@@ -167,5 +173,15 @@ public class ApprovalController {
         Map<String, Object> response = new HashMap<>();
         response.put("count", count);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 获取审批统计数据
+     */
+    @GetMapping("/stats")
+    @RequirePermission(Permission.APPROVAL_VIEW)
+    public ResponseEntity<?> getApprovalStats(@RequestAttribute("userId") Long userId) {
+        Map<String, Object> stats = approvalService.getApprovalStats(userId);
+        return ResponseEntity.ok(stats);
     }
 }
